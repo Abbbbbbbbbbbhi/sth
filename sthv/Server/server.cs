@@ -132,7 +132,7 @@ namespace sthvServer
 			EventHandlers["sth:sendserverkillerserverindex"] += new Action<Player, int>(KillfeedStuff);
 			////EventHandlers["sth:testevent"] += new Action<Player>(OnTestEvent);
 			//EventHandlers["sth:showMeOnMap"] += new Action<float, float, float>((float x, float y, float z) => { TriggerClientEvent("sth:sendShowOnMap", x, y, z); });
-			
+
 			EventHandlers["NumberOfAvailableMaps"] += new Action<int>(i => numberOfAvailableMaps = i);
 
 			//test
@@ -148,7 +148,8 @@ namespace sthvServer
 		}
 
 		[EventHandler("sthv:opttorun")]
-		void addToRunnerList([FromSource]Player source) {
+		void addToRunnerList([FromSource]Player source)
+		{
 			NextRunnerQueue.Add(source);
 			Debug.WriteLine(source.Name + " opted to run");
 		}
@@ -212,7 +213,8 @@ namespace sthvServer
 
 							Debug.WriteLine($"^4 playerchosen {randIndex} out of {NextRunnerQueue.Count() } options, handle: {runnerHandle}^7");
 						}
-						else {
+						else
+						{
 							int randIndex = rand.Next(0, Players.Count());
 							runnerID = runnerHandle = int.Parse(Players.ToArray()[randIndex].Handle);
 							runner = GetPlayerFromHandle(runnerHandle);
@@ -323,7 +325,7 @@ namespace sthvServer
 		}
 		async void onHuntOver() //happens once on hunt over
 		{
-			foreach(Player p in Players)
+			foreach (Player p in Players)
 			{
 				discord.MovePlayerToVc(p.getDiscordId(), discord.pcVoice);
 			}
@@ -332,6 +334,7 @@ namespace sthvServer
 			//TriggerClientEvent("sth:spawnall");
 			TriggerClientEvent("removeveh");
 			runnerHandle = -1;
+			runner = null;
 			TriggerClientEvent("sth:updateRunnerHandle", -1);
 			TriggerClientEvent("sth:starttimer", 0);
 			isHuntOver = true;
@@ -346,7 +349,6 @@ namespace sthvServer
 			{
 				SendChatMessage("hunt", "autohunt is off");
 			}
-
 		}
 		void resetVars()
 		{
@@ -409,7 +411,8 @@ namespace sthvServer
 		async void OnRequestedLicense([FromSource] Player source)        //send client their license 
 		{
 			var i = 1; //waits up to 3x2 seconds. Waits for firstick to check if discord server is online. 
-			while (!IsDiscordServerOnline && i < 3) {
+			while (!IsDiscordServerOnline && i < 3)
+			{
 				Debug.WriteLine(IsDiscordServerOnline.ToString());
 				await Delay(2000);
 				i += 1;
@@ -432,7 +435,7 @@ namespace sthvServer
 				{
 					Debug.WriteLine("fuck");
 					source.TriggerEvent("sth:returnlicense", licenseId, runnerHandle, false, false, false, IsDiscordServerOnline); //p4-7 are discord related, used in client.cs
-					Debug.WriteLine( "player " + source.Name + " doesnt have discord smh");
+					Debug.WriteLine("player " + source.Name + " doesnt have discord smh");
 				}
 			}
 			else
@@ -464,12 +467,14 @@ namespace sthvServer
 			TriggerEvent("sthv:checkaliveplayers");
 			if (KillerIndex < 0)
 			{
-				SendChatMessage("KILLFEED", killed.Name + " died.");
 				if (int.Parse(killed.Handle) == runnerHandle)
 				{
 					isHuntOver = true;
 					SendChatMessage("HUNT", "Runner " + runner.Name + " died.");
-
+				}
+				else
+				{
+					SendChatMessage("KILLFEED", killed.Name + " died.");
 				}
 			}
 			else foreach (Player i in Players)
@@ -486,9 +491,10 @@ namespace sthvServer
 							{
 								isRunnerKilled = true;
 								isHuntOver = true;
+								runner = null;
 								SendChatMessage("^5HUNT", $"{i.Name} killed runner: {runner.Name}");
 							}
-							else if (i.Handle == runner.Handle) //if runner gets a kill
+							else if (i.Handle == runner.Handle) //if hunter gets killed
 							{
 
 								SendChatMessage("^1HUNT", $"Runner {i.Name} killed hunter {killed.Name}");
@@ -502,7 +508,7 @@ namespace sthvServer
 								killed.TriggerEvent("sth:setguns", true);
 
 								sthvLobbyManager.DeadPlayers.RemoveAll(p => p == getLicense(i));
-								
+
 							}
 
 						}
@@ -511,6 +517,8 @@ namespace sthvServer
 							SendChatMessage("^1KILLFEED", $"{i.Name} killed {killed.Name}");
 							i.TriggerEvent("sthv:kill");
 							SendChatMessage("", $"^5{i.Name} was killed by Karma");
+							killed.TriggerEvent("sth:spawn", 2);
+
 						}
 
 					}
@@ -552,7 +560,8 @@ namespace sthvServer
 			hunter = 2,
 			spectator = 3
 		}
-		public static string getLicense(Player p) {
+		public static string getLicense(Player p)
+		{
 			return p.Identifiers["license"];
 		}
 
